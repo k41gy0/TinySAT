@@ -293,6 +293,42 @@ void testParser(AstNode *node) {
         testParser(node->next);
 }
 
+bool evaluateAST(AstNode *node, bool* V) {
+    switch (node->type) {
+        case NODE_TYPE_CONST:
+            if (node->data.value)
+                return true;
+            else
+                return false;
+        case NODE_TYPE_VAL:
+            return V[node->data.name];
+        case NODE_TYPE_NOT:
+            return !evaluateAST(node->data.list, V);
+        case NODE_TYPE_TO:
+            return ((!evaluateAST(node->data.list, V)) || evaluateAST(node->data.list->next, V));
+        case NODE_TYPE_AND:
+        case NODE_TYPE_OR:
+            bool result;
+            AstNode *tmp = node->data.list;
+            if (node->type == NODE_TYPE_AND) result = (evaluateAST(tmp, V) & evaluateAST(tmp->next, V));
+            else result = (evaluateAST(tmp, V) || evaluateAST(tmp->next, V));
+
+            tmp = tmp->next->next;
+            bool tmp_result;
+            while (tmp != NULL) {
+                tmp_result = evaluateAST(tmp, V);
+                if (node->type == NODE_TYPE_AND) result = (result & tmp_result);
+                else result = (result || tmp_result);
+                tmp = tmp->next;
+            }
+            return result;
+        default:
+            puts("Evaluate missing!!");
+            exit(7);
+    }
+
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "./a.out input_file");
@@ -316,6 +352,10 @@ int main(int argc, char **argv) {
     AstNode *root = treeinfo.node;
 
     testParser(root);
+
+    bool V[] = {false, false, true, false, true, true}; // fixme
+    bool result = evaluateAST(root, V);
+    printf("result: %d\n", result);
 
     return 0;
 }
