@@ -1,1 +1,1 @@
-(AND (OR False 0 1) (TO (NOT 0) 2))
+(AND (OR False 1 2) (TO (NOT 1) 3))

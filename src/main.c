@@ -329,6 +329,24 @@ bool evaluateAST(AstNode *node, bool* V) {
 
 }
 
+bool *readV(void) {
+    printf("Input v[n v...]> ");
+    int n, tmp;
+    scanf("%d", &n);
+    bool *V = (bool *)malloc(sizeof(bool) * n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &tmp);
+        if (tmp > 0) {
+            V[tmp] = true;
+        } else {
+            tmp = -1 * tmp;
+            V[tmp] = false;
+        }
+    }
+
+    return V;
+}
+
 int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "./a.out input_file");
@@ -352,8 +370,10 @@ int main(int argc, char **argv) {
     AstNode *root = treeinfo.node;
 
     testParser(root);
+    printf("\n");
 
-    bool V[] = {false, false, true, false, true, true}; // fixme
+    bool *V = readV();
+
     bool result = evaluateAST(root, V);
     printf("result: %d\n", result);
 
